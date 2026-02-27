@@ -381,6 +381,7 @@ export class TelegramMtproto implements INodeType {
         displayOptions: {
           show: {
             resource: ["authentication"],
+            operation: ["signIn"],
           },
         },
         description: "Optional 2FA password if your account has 2FA enabled",
