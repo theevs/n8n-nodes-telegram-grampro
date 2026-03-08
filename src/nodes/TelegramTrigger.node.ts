@@ -25,7 +25,7 @@ export class TelegramTrigger implements INodeType {
         outputs: ['main' as any],
         credentials: [
             {
-                name: 'telegramApi',
+                name: 'telegramGramProApi',
                 required: true,
                 testedBy: 'testTelegramApi',
             }
@@ -74,7 +74,7 @@ export class TelegramTrigger implements INodeType {
 
     // eslint-disable-next-line no-unused-vars
     async trigger(this: ITriggerFunctions): Promise<ITriggerResponse> {
-        const creds = await this.getCredentials('telegramApi') as any;
+        const creds = await this.getCredentials('telegramGramProApi') as any;
 
         if (!creds) {
             throw new NodeOperationError(this.getNode(), 'No credentials found');
