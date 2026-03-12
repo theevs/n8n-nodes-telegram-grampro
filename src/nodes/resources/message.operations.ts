@@ -826,16 +826,35 @@ async function forwardMessage(
 	];
 }
 
-async function getHistory(
-	this: IExecuteFunctions,
-	client: any,
-	i: number,
-): Promise<INodeExecutionData[]> {
+async function getHistory(this: IExecuteFunctions, client: any, i: number): Promise<INodeExecutionData[]> {
 	const historyFromSelf = this.getNodeParameter('historyFromSelf', i, false) as boolean;
-	const chatIdInput = historyFromSelf ? 'me' : (this.getNodeParameter('chatId', i) as string);
+	let chatIdInput = historyFromSelf ? 'me' : (this.getNodeParameter('chatId', i) as string);
 	const mode = this.getNodeParameter('mode', i, 'limit') as string;
 	const onlyMedia = this.getNodeParameter('onlyMedia', i, false) as boolean;
 	const mediaTypes = this.getNodeParameter('mediaType', i, []) as string[];
+
+	let replyToMsgId: number | undefined = undefined;
+
+	// Handle topic/message thread URLs like https://t.me/nghienplusofficial/1647824 or https://t.me/c/123456789/123
+	if (!historyFromSelf && chatIdInput) {
+		const topicMatch = chatIdInput.match(/(?:https?:\/\/)?t\.me\/(?:c\/)?([a-zA-Z0-9_-]+)\/(\d+)\/?$/);
+		if (topicMatch) {
+			chatIdInput = topicMatch[1];
+			// Format private channel/group IDs correctly
+			if (chatIdInput.match(/^\d+$/)) {
+				chatIdInput = `-100${chatIdInput}`;
+			}
+			replyToMsgId = parseInt(topicMatch[2], 10);
+		} else {
+			const shortMatch = chatIdInput.match(/(?:https?:\/\/)?t\.me\/(?:c\/)?([a-zA-Z0-9_-]+)\/?$/);
+			if (shortMatch) {
+				chatIdInput = shortMatch[1];
+				if (chatIdInput.match(/^\d+$/)) {
+					chatIdInput = `-100${chatIdInput}`;
+				}
+			}
+		}
+	}
 
 	let sourceName = 'Unknown';
 	let formattedSourceId = chatIdInput;
@@ -868,12 +887,13 @@ async function getHistory(
 
 	if (mode === 'limit') {
 		const limit = this.getNodeParameter('limit', i, 10) as number;
-		const result = await safeExecute(() => client.getMessages(chatIdInput, { limit }));
+		const result = await safeExecute(() => client.getMessages(chatIdInput, { limit, replyTo: replyToMsgId }));
 		messages = Array.isArray(result) ? result : [];
 	} else {
 		const maxMessages = this.getNodeParameter('maxMessages', i, 500) as number;
 		const iterOptions: Record<string, any> = {};
 		if (maxMessages > 0) iterOptions.limit = maxMessages;
+		if (replyToMsgId) iterOptions.replyTo = replyToMsgId;
 
 		if (mode === 'hours') {
 			const hours = this.getNodeParameter('hours', i, 24) as number;
