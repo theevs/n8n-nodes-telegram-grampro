@@ -4,7 +4,11 @@ import { safeExecute } from '../../core/floodWaitHandler';
 import { Api } from 'telegram';
 import { cache, CacheKeys } from '../../core/cache';
 
-export async function userRouter(this: IExecuteFunctions, operation: string, i: number): Promise<INodeExecutionData[]> {
+export async function userRouter(
+	this: IExecuteFunctions,
+	operation: string,
+	i: number,
+): Promise<INodeExecutionData[]> {
 	const creds: any = await this.getCredentials('telegramGramProApi');
 
 	const client = await getClient(creds.apiId, creds.apiHash, creds.session);
@@ -312,12 +316,12 @@ export async function getProfilePhoto(
 				} as IDataObject,
 				binary: photoData
 					? {
-						photo: {
-							data: photoData.toString('base64'),
-							mimeType: 'image/jpeg',
-							fileName: `profile_photo_${user.id}_${photoSize}.jpg`,
-						},
-					}
+							photo: {
+								data: photoData.toString('base64'),
+								mimeType: 'image/jpeg',
+								fileName: `profile_photo_${user.id}_${photoSize}.jpg`,
+							},
+						}
 					: undefined,
 				pairedItem: { item: i },
 			},

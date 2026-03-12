@@ -286,7 +286,7 @@ export class TelegramMtproto implements INodeType {
 					{
 						name: 'Complete Login',
 						value: 'signIn',
-						action: 'Complete Login'
+						action: 'Complete Login',
 					},
 				],
 				default: 'requestCode',

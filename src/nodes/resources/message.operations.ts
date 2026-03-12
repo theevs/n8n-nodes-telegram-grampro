@@ -7,8 +7,11 @@ import { CustomFile } from 'telegram/client/uploads';
 
 import { logger } from '../../core/logger';
 
-export async function messageRouter(this: IExecuteFunctions, operation: string, i: number): Promise<INodeExecutionData[]> {
-
+export async function messageRouter(
+	this: IExecuteFunctions,
+	operation: string,
+	i: number,
+): Promise<INodeExecutionData[]> {
 	const creds: any = await this.getCredentials('telegramGramProApi');
 
 	const client = await getClient(creds.apiId, creds.apiHash, creds.session);
@@ -826,7 +829,11 @@ async function forwardMessage(
 	];
 }
 
-async function getHistory(this: IExecuteFunctions, client: any, i: number): Promise<INodeExecutionData[]> {
+async function getHistory(
+	this: IExecuteFunctions,
+	client: any,
+	i: number,
+): Promise<INodeExecutionData[]> {
 	const historyFromSelf = this.getNodeParameter('historyFromSelf', i, false) as boolean;
 	let chatIdInput = historyFromSelf ? 'me' : (this.getNodeParameter('chatId', i) as string);
 	const mode = this.getNodeParameter('mode', i, 'limit') as string;
@@ -837,7 +844,9 @@ async function getHistory(this: IExecuteFunctions, client: any, i: number): Prom
 
 	// Handle topic/message thread URLs like https://t.me/nghienplusofficial/1647824 or https://t.me/c/123456789/123
 	if (!historyFromSelf && chatIdInput) {
-		const topicMatch = chatIdInput.match(/(?:https?:\/\/)?t\.me\/(?:c\/)?([a-zA-Z0-9_-]+)\/(\d+)\/?$/);
+		const topicMatch = chatIdInput.match(
+			/(?:https?:\/\/)?t\.me\/(?:c\/)?([a-zA-Z0-9_-]+)\/(\d+)\/?$/,
+		);
 		if (topicMatch) {
 			chatIdInput = topicMatch[1];
 			// Format private channel/group IDs correctly
@@ -887,7 +896,9 @@ async function getHistory(this: IExecuteFunctions, client: any, i: number): Prom
 
 	if (mode === 'limit') {
 		const limit = this.getNodeParameter('limit', i, 10) as number;
-		const result = await safeExecute(() => client.getMessages(chatIdInput, { limit, replyTo: replyToMsgId }));
+		const result = await safeExecute(() =>
+			client.getMessages(chatIdInput, { limit, replyTo: replyToMsgId }),
+		);
 		messages = Array.isArray(result) ? result : [];
 	} else {
 		const maxMessages = this.getNodeParameter('maxMessages', i, 500) as number;
