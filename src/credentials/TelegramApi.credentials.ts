@@ -13,7 +13,7 @@ import { mapTelegramError } from '../core/telegramErrorMapper';
 export class TelegramApi implements ICredentialType {
 	name = 'telegramApi';
 	displayName = 'Telegram GramPro API';
-	icon: ICredentialType['icon'] = 'file:telegram-grampro.svg';
+	icon: ICredentialType['icon'] = 'file:telegram-grampro-credentials.svg';
 
 	properties: INodeProperties[] = [
 		{
